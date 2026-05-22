@@ -1,1 +1,31 @@
-
+title: Disable Windows Defender Real-Time Monitoring via Registry
+id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+status: experimental
+description: >
+  Detects registry modification to disable Windows Defender
+  real-time protection. Observed in PicoSecure sandbox — sample4.exe
+  writing DisableRealtimeMonitoring = 1.
+author: Yves-Roland OHIN
+date: 2026/05/22
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+tags:
+  - attack.defense_evasion
+  - attack.t1562.001
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 13
+    TargetObject|contains: '\Microsoft\Windows Defender\Real-Time Protection'
+    Details: 'DWORD (0x00000001)'
+  condition: selection
+falsepositives:
+  - Legitimate admin or endpoint management tools (SCCM, Intune)
+level: high
+fields:
+  - Image
+  - TargetObject
+  - Details
+  - ProcessId
