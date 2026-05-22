@@ -1,1 +1,40 @@
-
+title: Suspicious cmd.exe Spawn and Log Exfiltration via sample6.exe
+id: c3d4e5f6-a7b8-9012-cdef-123456789012
+status: experimental
+description: >
+  Detects sample6.exe spawning multiple cmd.exe child processes,
+  one of which drops exfiltr8.log in the temp directory.
+  Indicative of data staging and exfiltration behaviour.
+  Observed in PicoSecure sandbox — C2 contr0l2hax.info (182.44.41.12).
+author: Yves-Roland OHIN
+date: 2026/05/22
+references:
+  - https://attack.mitre.org/techniques/T1059/003/
+  - https://attack.mitre.org/techniques/T1041/
+tags:
+  - attack.execution
+  - attack.t1059.003
+  - attack.exfiltration
+  - attack.t1041
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_spawn:
+    EventID: 1
+    ParentImage|contains: 'sample6.exe'
+    Image|endswith: '\cmd.exe'
+  selection_exfil:
+    EventID: 1
+    Image|endswith: '\cmd.exe'
+    CommandLine|contains: 'exfiltr8.log'
+  condition: selection_spawn or selection_exfil
+falsepositives:
+  - Legitimate applications spawning cmd.exe — verify parent process
+level: critical
+fields:
+  - Image
+  - ParentImage
+  - CommandLine
+  - ProcessId
+  - ParentProcessId
