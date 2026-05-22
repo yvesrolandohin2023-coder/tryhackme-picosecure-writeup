@@ -1,1 +1,40 @@
-
+title: C2 Beaconing via beacon.bat to Suspicious Domain
+id: b2c3d4e5-f6a7-8901-bcde-f12345678901
+status: experimental
+description: >
+  Detects beacon.bat establishing repeated HTTPS connections
+  to bababa10la.cn (51.102.10.19) on port 443.
+  Consistent with C2 keep-alive beaconing.
+  Observed in PicoSecure sandbox — sample5.exe dropper.
+author: Yves-Roland OHIN
+date: 2026/05/22
+references:
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://attack.mitre.org/techniques/T1105/
+tags:
+  - attack.command_and_control
+  - attack.t1071.001
+  - attack.t1105
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection_domain:
+    EventID: 3
+    Image|endswith: '\beacon.bat'
+    DestinationHostname|contains: 'bababa10la.cn'
+    DestinationPort: 443
+  selection_ip:
+    EventID: 3
+    Image|endswith: '\beacon.bat'
+    DestinationIp: '51.102.10.19'
+  condition: selection_domain or selection_ip
+falsepositives:
+  - None — beacon.bat is not a legitimate Windows process
+level: critical
+fields:
+  - Image
+  - DestinationIp
+  - DestinationHostname
+  - DestinationPort
+  - ProcessId
